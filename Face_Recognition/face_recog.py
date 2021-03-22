@@ -16,6 +16,7 @@ face_locations = []
 face_encodings = []
 face_names = []
 process_this_frame = True
+
 while True:
     video_capture = cv2.VideoCapture(0)
     
