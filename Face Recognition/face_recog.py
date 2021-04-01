@@ -12,13 +12,14 @@ prahlad_face_encoding = face_recognition.face_encodings(prahlad_image)[0]
 ojas_image = face_recognition.load_image_file("ojas.jpeg")
 ojas_face_encoding = face_recognition.face_encodings(ojas_image)[0]
 
-known_face_encodings = [pranjal_face_encoding, prahlad_face_encoding, ojas_face_encoding]
-known_face_names = ["Pranjal", "Prahlad", "Ojas"]
-
 face_locations = []
 face_encodings = []
 face_names = []
 process_this_frame = True
+
+known_face_encodings = [pranjal_face_encoding, prahlad_face_encoding, ojas_face_encoding]
+known_face_names = ["Pranjal", "Prahlad", "Ojas"]
+
 while True:
     video_capture = cv2.VideoCapture(0)
     
