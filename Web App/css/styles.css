@@ -1,0 +1,71 @@
+/*@media  (min-width : 900px) {
+    html, body{
+        margin: 0px;
+        height: 100%;
+        font-family: "Roboto";
+        background-image: url("../assets/home-page-background.png") !important;
+    }    
+}*/
+
+html, body{
+    margin: 0px;
+    height: 100%;
+    font-family: "Roboto";
+    background-image: url("../assets/home-page-background.png") !important;
+}
+
+
+p{
+    margin: 0px;
+}
+
+.project-name{
+    color: #2f84fb;
+    font-size: 20px;
+}
+
+.login{
+    background-color: white;
+    min-height: 100%;
+    text-align: center;
+    min-width: 576px;
+    position: relative;
+    float: right;
+}
+
+.logo{
+    padding-top: 30%;
+}
+
+[src= "assets/logo.png"]{
+    height: 150px;
+    width: 150px;
+}
+
+.login-form{
+    margin: auto;
+    width: 53%;
+    text-align: left;
+}
+
+.login-form-entity{
+    margin: 0;
+    font-size: 20px;
+    width: 76%;
+}
+
+.login-label{
+    margin-bottom: 5px;
+    width: 100%;
+}
+
+.login-field{
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.btn, .btn-primary{
+    background-color: #2f84fb;
+    font-weight: bold;
+    width: 100%;
+}
