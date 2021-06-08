@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:edi_project/newTeachermodel.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:edi_project/FireBaseHelper.dart';
 import 'package:edi_project/newStudentModel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -47,8 +49,127 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String imageLink = "";
 
+  List<GraphData> graphDataStudent = [];
+  List<GraphData> graphDataStaff = [];
+
+  int databaseCount = 1;
+  String databaseValue = "Students";
+
+  int defaulterCount = 1;
+  String defaulterValue = "Students";
+
+  void initState(){
+    super.initState();
+    datefunction();
+  }
+
+  void datefunction() async{
+    graphDataStudent.clear();
+    graphDataStaff.clear();
+
+    var temp = await fs.getAllDefaulters(1);
+
+    int now = DateTime.now().day;
+
+    int target = now - 7;
+
+    GraphData one = GraphData("1", 0);
+    GraphData two = GraphData("2", 0);
+    GraphData three = GraphData("3", 0);
+    GraphData four = GraphData("4", 0);
+    GraphData five = GraphData("5", 0);
+    GraphData six = GraphData("6", 0);
+    GraphData seven = GraphData("7", 0);
+
+    for (int i = 0; i < temp.docs.length; i++){
+        var date = DateTime.parse(temp.docs[i]['Default_Time']).day;
+
+        if (now - date == 1)
+          seven.number = seven.number + 1;
+
+        if (now - date == 2)
+          six.number = six.number + 1;
+
+        if (now - date == 3)
+          five.number = five.number + 1;
+
+        if (now - date == 4)
+          four.number = four.number + 1;
+
+        if (now - date == 5)
+          three.number = three.number + 1;
+
+        if (now - date == 6)
+          two.number = two.number + 1;
+
+        if (now - date == 7)
+          one.number = one.number + 1;
+    }
+
+    setState(() {
+      graphDataStudent.add(one);
+      graphDataStudent.add(two);
+      graphDataStudent.add(three);
+      graphDataStudent.add(four);
+      graphDataStudent.add(five);
+      graphDataStudent.add(six);
+      graphDataStudent.add(seven);
+    });
+
+    GraphData one1 = GraphData("1", 0);
+    GraphData two1 = GraphData("2", 0);
+    GraphData three1 = GraphData("3", 0);
+    GraphData four1 = GraphData("4", 0);
+    GraphData five1 = GraphData("5", 0);
+    GraphData six1 = GraphData("6", 0);
+    GraphData seven1 = GraphData("7", 0);
+
+    temp = await fs.getAllDefaulters(2);
+
+    for (int i = 0; i < temp.docs.length; i++){
+        var date = DateTime.parse(temp.docs[i]['Default_Time']).day;
+
+        if (now - date == 1)
+          seven1.number = seven1.number + 1;
+
+        if (now - date == 2)
+          six1.number = six1.number + 1;
+
+        if (now - date == 3)
+          five1.number = five1.number + 1;
+
+        if (now - date == 4)
+          four1.number = four1.number + 1;
+
+        if (now - date == 5)
+          three1.number = three1.number + 1;
+
+        if (now - date == 6)
+          two1.number = two1.number + 1;
+
+        if (now - date == 7)
+          one1.number = one1.number + 1;
+    }
+
+    setState(() {
+      graphDataStaff.add(one1);
+      graphDataStaff.add(two1);
+      graphDataStaff.add(three1);
+      graphDataStaff.add(four1);
+      graphDataStaff.add(five1);
+      graphDataStaff.add(six1);
+      graphDataStaff.add(seven1);
+    });
+  }
+
   void getStudentInfo(String grno) async{
-    var temp = await fs.getStudentInfo(grno);
+    var temp;
+    if (defaulterCount == 1)
+      temp = await fs.getStudentInfo(grno, 1);
+
+    if (defaulterCount == 2)
+      temp = await fs.getStudentInfo(grno, 2);
+
     setState(() {
       studentGrno = grno;
       studentName = temp.data()['Name'];
@@ -248,10 +369,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
 
+                        if (defaulterCount == 1)
                         SizedBox(
                           height: 30,
                         ),
 
+                        if (defaulterCount == 1)
                         Row(
                           children: <Widget>[
                             Container(
@@ -525,6 +648,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 30,
                         ),
 
+                        if (databaseCount == 1)
                         Row(
                           children: <Widget>[
                             Container(
@@ -560,6 +684,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
 
+                        if (databaseCount == 1)
                         SizedBox(
                           height: 30,
                         ),
@@ -632,49 +757,94 @@ class _HomeScreenState extends State<HomeScreen> {
                               minimumSize: Size(780, 60)
                             ),
                             onPressed: () async{
-                              
+          
+                              if (databaseCount == 1){
+                                StudentModel student = StudentModel(
+                                  grno: grnoController.text,
+                                  name: nameController.text,
+                                  email: emailController.text,
+                                  phone: phnoController.text,
+                                  year: yearController.text
+                                );
 
-                              StudentModel student = StudentModel(
-                                grno: grnoController.text,
-                                name: nameController.text,
-                                email: emailController.text,
-                                phone: phnoController.text,
-                                year: yearController.text
-                              );
 
-                              String path = "Photos/" + student.grno + "/" + student.grno;
-                              await FirebaseStorage.instance.ref().child(path).putBlob(image);
-                              String downloadURL = await FirebaseStorage.instance.ref(path).getDownloadURL();
-                              //print (downloadURL);
+                                String path = "Photos/" + student.grno + "/" + student.grno;
+                                await FirebaseStorage.instance.ref().child(path).putBlob(image);
+                                String downloadURL = await FirebaseStorage.instance.ref(path).getDownloadURL();
+                                //print (downloadURL);
 
-                              StudentModel student1 = StudentModel(
-                                grno: grnoController.text,
-                                name: nameController.text,
-                                email: emailController.text,
-                                phone: phnoController.text,
-                                year: yearController.text,
-                                imgUrl: downloadURL
-                              );
+                                StudentModel student1 = StudentModel(
+                                  grno: grnoController.text,
+                                  name: nameController.text,
+                                  email: emailController.text,
+                                  phone: phnoController.text,
+                                  year: yearController.text,
+                                  imgUrl: downloadURL
+                                );
 
-                              await fs.addNewStudent(student1);
+                                await fs.addNewStudent(student1, 1);
 
-                              grnoController.text = "";
-                              nameController.text = "";
-                              emailController.text = "";
-                              phnoController.text = "";
-                              yearController.text = "";
-                              imageController.text = "";
+                                grnoController.text = "";
+                                nameController.text = "";
+                                emailController.text = "";
+                                phnoController.text = "";
+                                yearController.text = "";
+                                imageController.text = "";
 
-                              image = null;
-                              
-                              if (edit == true){
-                                final snackText = SnackBar(content: Text("Update Successful"));
-                                ScaffoldMessenger.of(context).showSnackBar(snackText);
+                                image = null;
+                                
+                                if (edit == true){
+                                  final snackText = SnackBar(content: Text("Update Successful"));
+                                  ScaffoldMessenger.of(context).showSnackBar(snackText);
+                                }
+
+                                if (edit == false){
+                                  final snackText = SnackBar(content: Text("Student Successfully Added"));
+                                  ScaffoldMessenger.of(context).showSnackBar(snackText);
+                                }
                               }
 
-                              if (edit == false){
-                                final snackText = SnackBar(content: Text("Student Successfully Added"));
-                                ScaffoldMessenger.of(context).showSnackBar(snackText);
+                              if (databaseCount == 2){
+                                TeacherModel teacher = TeacherModel(
+                                  grno: grnoController.text,
+                                  name: nameController.text,
+                                  email: emailController.text,
+                                  phone: phnoController.text,
+                                );
+
+                                String path = "Photos/" + teacher.grno + "/" + teacher.grno;
+                                await FirebaseStorage.instance.ref().child(path).putBlob(image);
+                                String downloadURL = await FirebaseStorage.instance.ref(path).getDownloadURL();
+                                //print (downloadURL);
+
+                                TeacherModel teacher1 = TeacherModel(
+                                  grno: grnoController.text,
+                                  name: nameController.text,
+                                  email: emailController.text,
+                                  phone: phnoController.text,
+                                  imgUrl: downloadURL
+                                );
+
+                                await fs.addNewStudent(teacher1, 2);
+
+                                grnoController.text = "";
+                                nameController.text = "";
+                                emailController.text = "";
+                                phnoController.text = "";
+                                yearController.text = "";
+                                imageController.text = "";
+
+                                image = null;
+                                
+                                if (edit == true){
+                                  final snackText = SnackBar(content: Text("Update Successful"));
+                                  ScaffoldMessenger.of(context).showSnackBar(snackText);
+                                }
+
+                                if (edit == false){
+                                  final snackText = SnackBar(content: Text("Student Successfully Added"));
+                                  ScaffoldMessenger.of(context).showSnackBar(snackText);
+                                }
                               }
 
                               getAllStudents();
@@ -696,7 +866,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void getallDefaulters() async{
     defaulterRows.clear();
-    fs.getAllDefaulters().then((temp){
+
+    var temp ;
+    if (defaulterCount == 1)
+      temp = await fs.getAllDefaulters(1);
+
+    if (defaulterCount == 2)
+      temp = await fs.getAllDefaulters(2);
+
       setState(() {
         defaulterRows.add(TableRow(
         children: [
@@ -852,12 +1029,17 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
       });
-    });
   }
 
   void getAllStudents() async{
     rows.clear();
-    fs.getAllStudents().then((temp){
+
+    var temp;
+    if (databaseCount == 1)
+      temp = await fs.getAllStudents(1);
+    if (databaseCount == 2)
+      temp = await fs.getAllStudents(2);
+
       setState(() {
         rows.add(TableRow(
         children: [
@@ -909,6 +1091,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
+          if (databaseCount == 1)
           Container(
             height: 60,
             padding: EdgeInsets.only(left : 5, right : 5, bottom: 15, top : 15),
@@ -1007,6 +1190,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
+                  if (databaseCount == 1)
                   Container(
                     padding: EdgeInsets.only(left : 5, right : 5, bottom: 15, top : 15),
                     child : Text(
@@ -1071,8 +1255,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: IconButton(
                         icon: Icon(Icons.delete_outline), 
                         onPressed: () async{
-                          await fs.deleteStudentDatabase(temp.docs[i].data()['GRno'].toString());
-                          await fs.deleteDefaulterStudent(temp.docs[i].data()['GRno'].toString());
+                          if (databaseCount == 1)
+                            await fs.deleteStudentDatabase(temp.docs[i].data()['GRno'].toString(), 1);
+                          if (databaseCount == 2)
+                            await fs.deleteStudentDatabase(temp.docs[i].data()['GRno'].toString(), 2);
+
+                          //await fs.deleteDefaulterStudent(temp.docs[i].data()['GRno'].toString());
                           final snackText = SnackBar(content: Text("Delete Successful"));
                           ScaffoldMessenger.of(context).showSnackBar(snackText);
                           getAllStudents();
@@ -1087,11 +1275,11 @@ class _HomeScreenState extends State<HomeScreen> {
           }
         
       });
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Color(0xFFf6f6f6),
       body: SafeArea(
@@ -1126,6 +1314,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           onPressed: (){
+                            datefunction();
                             setState(() {
                               dashBoardPressed = true;
                               databasePressed = false;
@@ -1213,13 +1402,221 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             if (dashBoardPressed)
-            Text("dashboard"),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Color(0xFF707070),
+                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(0)),
+                      ),
+                      margin: EdgeInsets.only(left : 60, top : 50),
+                      width: 600,
+                      height: 300,
+                      child: SfCartesianChart(
+                        primaryXAxis: CategoryAxis(),
+                        primaryYAxis: NumericAxis(interval: 1),
+                        backgroundColor: Colors.white,
+                        series: <ChartSeries>[
+                          LineSeries <GraphData, String>(
+                            color: Colors.red,
+                            dataSource: graphDataStudent, 
+                            xValueMapper: (GraphData data, _) => data.day,
+                            yValueMapper: (GraphData data, _) => data.number,
+                            markerSettings: MarkerSettings(
+                              isVisible: true
+                            )
+                          )
+                        ],
+                      ),
+                    ),
+
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Color(0xFF707070),
+                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(0)),
+                      ),
+                      margin: EdgeInsets.only(left : 20, top : 50),
+                      width: 600,
+                      height: 300,
+                      child: SfCartesianChart(
+                        primaryXAxis: CategoryAxis(),
+                        primaryYAxis: NumericAxis(interval: 1),
+                        backgroundColor: Colors.white,
+                        series: <ChartSeries>[
+                          LineSeries <GraphData, String>(
+                            color: Colors.green,
+                            dataSource: graphDataStaff, 
+                            xValueMapper: (GraphData data, _) => data.day,
+                            yValueMapper: (GraphData data, _) => data.number,
+                            markerSettings: MarkerSettings(
+                              isVisible: true
+                            )
+                          )
+                        ],
+                      ),
+                    ),
+
+                    Expanded(
+                      child: Container(
+                        height: 300,
+                        margin: EdgeInsets.only(right : 60, top : 50),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Container(
+                              margin: EdgeInsets.only(left : 60),
+                              child:Row(
+                                children: <Widget>[
+                                  Container(
+                                    height: 15,
+                                    width: 15,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Color(0xFF707070),
+                                      ),
+                                      borderRadius: BorderRadius.all(Radius.circular(0)),
+                                      color: Colors.red,
+                                    ),
+                                  ),
+
+                                  Container(
+                                    margin: EdgeInsets.only(left : 10),
+                                    child: Text(
+                                      "Student",
+                                      style: TextStyle(
+                                        fontSize: 15
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+
+                            SizedBox(
+                              height: 10,
+                            ),
+
+                            Container(
+                              margin: EdgeInsets.only(left : 60),
+                              child: Row(
+                                children: <Widget>[
+                                  Container(
+                                    height: 15,
+                                    width: 15,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Color(0xFF707070),
+                                      ),
+                                      borderRadius: BorderRadius.all(Radius.circular(0)),
+                                      color: Colors.green,
+                                    ),
+                                  ),
+
+                                  Container(
+                                    margin: EdgeInsets.only(left : 10),
+                                    child: Text(
+                                      "Staff",
+                                      style: TextStyle(
+                                        fontSize: 15
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              )
+                            )
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Color(0xFF707070),
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(0)),
+                  ),
+                  margin: EdgeInsets.only(left : 20, right : 20, top : 50),
+                  height: 400,
+                  child: SfCartesianChart(
+                    primaryXAxis: CategoryAxis(),
+                    primaryYAxis: NumericAxis(interval: 1),
+                    backgroundColor: Colors.white,
+                    series: <ChartSeries>[
+                      ColumnSeries<GraphData, String>(
+                        color: Colors.red,
+                        dataSource: graphDataStudent, 
+                        xValueMapper: (GraphData data, _) => data.day,
+                        yValueMapper: (GraphData data, _) => data.number,
+                      ),
+
+                      ColumnSeries<GraphData, String>(
+                        color: Colors.green,
+                        dataSource: graphDataStaff, 
+                        xValueMapper: (GraphData data, _) => data.day,
+                        yValueMapper: (GraphData data, _) => data.number,
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
 
             if (defaultersPressed)
             Column(
               children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(right : 75, top : 25),
+                      child: DropdownButton<String>(
+                        value: defaulterValue,
+                        icon : Icon(Icons.arrow_drop_down_sharp),
+                        iconSize: 24,
+                        elevation: 16,
+                        onChanged: (value) {
+                          setState(() {
+                            defaulterValue = value;
+
+                            if (value == "Students"){
+                              defaulterCount= 1;
+                            }
+
+                            if (value == "Staff"){
+                              defaulterCount = 2;
+                            }
+
+                            getallDefaulters();
+                          });
+                        },
+                        items: ['Students', 'Staff'].map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem <String>(
+                            child: Text(
+                              value,
+                              style: TextStyle(
+                                fontSize: 15
+                              ),
+                            ),
+                            value: value,
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+
                 Container(
-                  margin: EdgeInsets.only(left : 60, right : 60, top : 50),
+                  margin: EdgeInsets.only(left : 60, right : 60, top : 25),
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: Color(0xFF9F9F9F),
@@ -1248,24 +1645,11 @@ class _HomeScreenState extends State<HomeScreen> {
             Column(
               children: <Widget>[
                 Container(
-                  margin: EdgeInsets.only(right : 75, top: 15),
+                  margin: EdgeInsets.only(left : 75, right : 75, top: 15),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-
-                      /*IconButton(
-                        icon: Icon(Icons.add), 
-                        onPressed: (){
-                          setState(() {
-                            databaseAddPressed = true;
-                            databaseUpdatePressed = false;
-                            showAddDialog(context);
-                          });
-                        },
-                        color:  databaseAddPressed?Color(0xFF2F84FB) : Colors.black,
-                      ),*/
-
                       ElevatedButton(
                         onPressed: (){
                           grnoController.text = "";
@@ -1288,7 +1672,43 @@ class _HomeScreenState extends State<HomeScreen> {
                           primary: Color(0xFF2F84FB),
                           minimumSize: Size(100, 50)
                         ),
-                      )
+                      ),
+
+                      Container(
+                        padding: EdgeInsets.only(left : 20,),
+                        child: DropdownButton<String>(
+                          value: databaseValue,
+                          icon : Icon(Icons.arrow_drop_down_sharp),
+                          iconSize: 24,
+                          elevation: 16,
+                          onChanged: (value) {
+                            setState(() {
+                              databaseValue = value;
+
+                              if (value == "Students"){
+                                databaseCount= 1;
+                              }
+
+                              if (value == "Staff"){
+                                databaseCount = 2;
+                              }
+
+                              getAllStudents();
+                            });
+                          },
+                          items: ['Students', 'Staff'].map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem <String>(
+                              child: Text(
+                                value,
+                                style: TextStyle(
+                                  fontSize: 15
+                                ),
+                              ),
+                              value: value,
+                            );
+                          }).toList(),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1318,6 +1738,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     children: rows,
                   ),
+                ),
+                SizedBox(
+                  height : 100,
                 )
               ],
             )
@@ -1326,4 +1749,11 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
+
+class GraphData {
+  GraphData(this.day, this.number);
+
+  String day;
+  double number;
 }

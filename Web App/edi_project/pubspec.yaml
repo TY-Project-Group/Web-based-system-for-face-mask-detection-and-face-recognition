@@ -33,6 +33,7 @@ dependencies:
   cloud_firestore: ^2.2.1
   firebase_storage: 
   firebase_auth: 
+  syncfusion_flutter_charts: ^19.1.67
 
 dev_dependencies:
   flutter_test:
