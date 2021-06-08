@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:edi_project/newTeachermodel.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:edi_project/FireBaseHelper.dart';
@@ -71,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     int now = DateTime.now().day;
 
-    int target = now - 7;
+    //int target = now - 7;
 
     GraphData one = GraphData("1", 0);
     GraphData two = GraphData("2", 0);

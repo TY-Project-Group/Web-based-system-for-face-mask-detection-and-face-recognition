@@ -1,6 +1,5 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:edi_project/newStudentModel.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class FireBaseHelper{

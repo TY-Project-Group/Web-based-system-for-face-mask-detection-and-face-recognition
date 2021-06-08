@@ -157,6 +157,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 password: password
                               );
 
+                              print(userCredential.user);
+
                               emailController.text = "";
                               passwordController.text = "";
 
