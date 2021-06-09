@@ -73,6 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void datefunction() async{
+    List<String> months = ['Jan', 'Feb', 'Mar', 'Apr', 'May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     graphDataStudent.clear();
     graphDataStaff.clear();
     studentToday = 0;
@@ -81,16 +82,17 @@ class _HomeScreenState extends State<HomeScreen> {
     var temp = await fs.getAllDefaulters(1);
 
     int now = DateTime.now().day;
+    int day = DateTime.now().month;
 
     //int target = now - 7;
 
-    GraphData one = GraphData("1", 0);
-    GraphData two = GraphData("2", 0);
-    GraphData three = GraphData("3", 0);
-    GraphData four = GraphData("4", 0);
-    GraphData five = GraphData("5", 0);
-    GraphData six = GraphData("6", 0);
-    GraphData seven = GraphData("7", 0);
+    GraphData one = GraphData(months[day-1] + " " + (now - 7).toString(), 0);
+    GraphData two = GraphData(months[day-1] + " " +(now - 6).toString(), 0);
+    GraphData three = GraphData(months[day-1] + " " + (now - 5).toString(), 0);
+    GraphData four = GraphData(months[day-1] + " " +  (now - 4).toString(), 0);
+    GraphData five = GraphData(months[day-1] +" "  + (now - 3).toString(), 0);
+    GraphData six = GraphData(months[day-1] + " "  +(now - 2).toString(), 0);
+    GraphData seven = GraphData(months[day-1] + " " + (now - 1).toString(), 0);
 
     for (int i = 0; i < temp.docs.length; i++){
         var date = DateTime.parse(temp.docs[i]['Default_Time']).day;
@@ -98,26 +100,33 @@ class _HomeScreenState extends State<HomeScreen> {
         if (now - date == 0)
           studentToday = studentToday + 1;
 
-        if (now - date == 1)
+        if (now - date == 1){
           seven.number = seven.number + 1;
+        }
 
-        if (now - date == 2)
+        if (now - date == 2){
           six.number = six.number + 1;
+        }
 
-        if (now - date == 3)
+        if (now - date == 3){
           five.number = five.number + 1;
+        }
 
-        if (now - date == 4)
+        if (now - date == 4){
           four.number = four.number + 1;
+        }
 
-        if (now - date == 5)
+        if (now - date == 5){
           three.number = three.number + 1;
+        }
 
-        if (now - date == 6)
+        if (now - date == 6){
           two.number = two.number + 1;
+        }
 
-        if (now - date == 7)
+        if (now - date == 7){
           one.number = one.number + 1;
+        }
     }
 
     setState(() {
@@ -131,13 +140,13 @@ class _HomeScreenState extends State<HomeScreen> {
       graphDataStudent.add(seven);
     });
 
-    GraphData one1 = GraphData("1", 0);
-    GraphData two1 = GraphData("2", 0);
-    GraphData three1 = GraphData("3", 0);
-    GraphData four1 = GraphData("4", 0);
-    GraphData five1 = GraphData("5", 0);
-    GraphData six1 = GraphData("6", 0);
-    GraphData seven1 = GraphData("7", 0);
+    GraphData one1 = GraphData(months[day-1] + " " + (now - 7).toString(), 0);
+    GraphData two1 = GraphData(months[day-1] + " " +(now - 6).toString(), 0);
+    GraphData three1 = GraphData(months[day-1] + " " + (now - 5).toString(), 0);
+    GraphData four1= GraphData(months[day-1] + " " +  (now - 4).toString(), 0);
+    GraphData five1= GraphData(months[day-1] +" "  + (now - 3).toString(), 0);
+    GraphData six1 = GraphData(months[day-1] + " "  +(now - 2).toString(), 0);
+    GraphData seven1 = GraphData(months[day-1] + " " + (now - 1).toString(), 0);
 
     temp = await fs.getAllDefaulters(2);
 
@@ -147,26 +156,33 @@ class _HomeScreenState extends State<HomeScreen> {
         if (now - date == 0)
           staffToday = staffToday + 1;
 
-        if (now - date == 1)
+        if (now - date == 1){
           seven1.number = seven1.number + 1;
+        }
 
-        if (now - date == 2)
+        if (now - date == 2){
           six1.number = six1.number + 1;
+        }
 
-        if (now - date == 3)
+        if (now - date == 3){
           five1.number = five1.number + 1;
+        }
 
-        if (now - date == 4)
+        if (now - date == 4){
           four1.number = four1.number + 1;
+        }
 
-        if (now - date == 5)
+        if (now - date == 5){
           three1.number = three1.number + 1;
+        }
 
-        if (now - date == 6)
+        if (now - date == 6){
           two1.number = two1.number + 1;
+        }
 
-        if (now - date == 7)
+        if (now - date == 7){
           one1.number = one1.number + 1;
+        }
     }
 
     setState(() {
@@ -815,7 +831,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 );
 
 
-                                String path = "Photos/" + student.grno + "/" + student.grno;
+                                String path = "Photos/" + student.grno + "/" + student.grno + ".jpg";
                                 await FirebaseStorage.instance.ref().child(path).putBlob(image);
                                 String downloadURL = await FirebaseStorage.instance.ref(path).getDownloadURL();
                                 //print (downloadURL);
@@ -866,7 +882,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   phone: phnoController.text,
                                 );
 
-                                String path = "Photos/" + teacher.grno + "/" + teacher.grno;
+                                String path = "Photos/" + teacher.grno + "/" + teacher.grno + ".jpg";
                                 await FirebaseStorage.instance.ref().child(path).putBlob(image);
                                 String downloadURL = await FirebaseStorage.instance.ref(path).getDownloadURL();
                                 //print (downloadURL);
@@ -1533,8 +1549,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: 600,
                       height: 300,
                       child: SfCartesianChart(
-                        primaryXAxis: CategoryAxis(),
-                        primaryYAxis: NumericAxis(interval: 1),
+                        primaryXAxis: CategoryAxis(
+                          title: AxisTitle(text : "Past 7 Days"),
+                        ),
+                        primaryYAxis: NumericAxis(
+                          interval: 1,
+                          title: AxisTitle(text : "Number of Defaulters"),
+                        ),
                         backgroundColor: Colors.white,
                         series: <ChartSeries>[
                           LineSeries <GraphData, String>(
@@ -1561,12 +1582,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: 600,
                       height: 300,
                       child: SfCartesianChart(
-                        primaryXAxis: CategoryAxis(),
-                        primaryYAxis: NumericAxis(interval: 1),
+                        primaryXAxis: CategoryAxis(
+                          title: AxisTitle(text : "Past 7 Days"),
+                        ),
+                        primaryYAxis: NumericAxis(
+                          interval: 1,
+                          title: AxisTitle(text : "Number of Defaulters"),
+                        ),
                         backgroundColor: Colors.white,
                         series: <ChartSeries>[
                           LineSeries <GraphData, String>(
-                            color: Colors.green,
+                            color: Color(0XFF34A853),
                             dataSource: graphDataStaff, 
                             xValueMapper: (GraphData data, _) => data.day,
                             yValueMapper: (GraphData data, _) => data.number,
@@ -1597,7 +1623,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       color: Color(0xFF707070),
                                     ),
                                     borderRadius: BorderRadius.all(Radius.circular(0)),
-                                    color: Colors.red,
+                                    color: Color(0XFFEA4335),
                                   ),
                                 ),
 
@@ -1606,7 +1632,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Text(
                                     "Student",
                                     style: TextStyle(
-                                      fontSize: 15
+                                      fontSize: 15,
                                     ),
                                   ),
                                 )
@@ -1630,7 +1656,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       color: Color(0xFF707070),
                                     ),
                                     borderRadius: BorderRadius.all(Radius.circular(0)),
-                                    color: Colors.green,
+                                    color: Color(0XFF34A853),
                                   ),
                                 ),
 
@@ -1660,54 +1686,111 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: Color(0xFF707070),
                           ),
                           borderRadius: BorderRadius.all(Radius.circular(0)),
+                          color: Colors.white
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
                             Container(
-                              margin: EdgeInsets.only(bottom : 15),
+                              margin: EdgeInsets.only(bottom : 15, top : 10),
                               child: Text(
-                                "Todays Stats", 
+                                "Today's Stats", 
                                 style : TextStyle(
-                                  fontSize : 18,
+                                  fontSize : 22,
+                                  decoration: TextDecoration.underline,
                                 )
                               ),
+                            ),
+
+                            SizedBox(
+                              height : 30
                             ),
 
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Container(
-                                  padding: EdgeInsets.only(bottom : 15, left : 20),
-                                  child: Text(
-                                    "Students : " + (studentToday).toString(),
-                                    style : TextStyle(
-                                      fontSize : 18,
-                                    )
-                                  ),
+                                Column(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.only(left : 40),
+                                      child: Text(
+                                        "Students:",
+                                        style : TextStyle(
+                                          fontSize : 25,
+                                        )
+                                      ),
+                                    ),
+
+                                    Container(
+                                      padding: EdgeInsets.only(bottom : 15, left : 40),
+                                      child: Text(
+                                        (studentToday).toString(),
+                                        style : TextStyle(
+                                          fontSize : 30,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0XFFEA4335),
+                                        )
+                                      ),
+                                    ),
+                                  ],
                                 ),
 
-                                Container(
-                                  padding: EdgeInsets.only(bottom : 15, right : 20),
-                                  child: Text(
-                                    "Staff : " + (staffToday).toString(),
-                                    style : TextStyle(
-                                      fontSize : 18,
-                                    )
-                                  ),
+                                Column(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.only(right : 40),
+                                      child: Text(
+                                        "Staff:",
+                                        style : TextStyle(
+                                          fontSize : 25,
+                                        )
+                                      ),
+                                    ),
+
+                                    Container(
+                                      padding: EdgeInsets.only(bottom : 15, right : 40),
+                                      child: Text(
+                                        (staffToday).toString(),
+                                        style : TextStyle(
+                                          fontSize : 30,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0XFF34A853)
+                                        )
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
 
-                            Container(
-                              margin: EdgeInsets.only(bottom : 15),
-                              child: Text(
-                                "Total : " + (studentToday + staffToday).toString(),
-                                style : TextStyle(
-                                  fontSize : 18,
-                                )
-                              ),
+                            SizedBox(
+                              height : 20
+                            ),
+
+                            Column(
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.only(),
+                                  child: Text(
+                                    "Total:",
+                                    style : TextStyle(
+                                      fontSize : 25,
+                                    )
+                                  ),
+                                ),
+
+                                Container(
+                                  margin: EdgeInsets.only(bottom : 15),
+                                  child: Text(
+                                    (studentToday + staffToday).toString(),
+                                    style : TextStyle(
+                                      fontSize : 30,
+                                      fontWeight: FontWeight.bold
+                                    )
+                                  ),
+                                ),
+                              ],
                             ),
 
                           ],
@@ -1727,19 +1810,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   margin: EdgeInsets.only(left : 60, right : 60, top : 50),
                   height: 400,
                   child: SfCartesianChart(
-                    primaryXAxis: CategoryAxis(),
-                    primaryYAxis: NumericAxis(interval: 1),
+                    primaryXAxis: CategoryAxis(
+                      title: AxisTitle(text : "Past 7 Days"),
+                    ),
+                    primaryYAxis: NumericAxis(
+                      interval: 1,
+                      title: AxisTitle(text : "Number of Defaulters"),
+                    ),
                     backgroundColor: Colors.white,
                     series: <ChartSeries>[
                       ColumnSeries<GraphData, String>(
-                        color: Colors.red,
+                        color: Color(0XFFEA4335),
                         dataSource: graphDataStudent, 
                         xValueMapper: (GraphData data, _) => data.day,
                         yValueMapper: (GraphData data, _) => data.number,
                       ),
 
                       ColumnSeries<GraphData, String>(
-                        color: Colors.green,
+                        color: Color(0XFF34A853),
                         dataSource: graphDataStaff, 
                         xValueMapper: (GraphData data, _) => data.day,
                         yValueMapper: (GraphData data, _) => data.number,

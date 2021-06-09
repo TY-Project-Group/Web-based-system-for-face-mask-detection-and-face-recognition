@@ -42,12 +42,52 @@ known_face_names = []
 files = ['Photos/11810148/11810148.jpg','Photos/11810254/11810254.jpg','Photos/11810321/11810321.jpg']
 i = 0
 
-for f in files:
+gr = []
+path = []
+
+docs = db.collection('users').get()
+for doc in docs:
+    gr.append(doc.to_dict().get('GRno'))
+
+print (len(gr))
+
+for i in gr:
+    pth = 'Photos/' + str(i) + '/' + str(i) + '.jpg'
+    path.append(pth)
+
+i = 1
+for f in path:
+    print (i)
     storage.child(f).download("", "img.jpg")
     x = face_recognition.load_image_file("img.jpg")
     y = face_recognition.face_encodings(x)[0]
     known_face_encodings.append(y)
     known_face_names.append(f[-12:-4])
+    i = i + 1
+
+docs = db.collection('staff').get()
+gr = []
+path= [] 
+for doc in docs:
+    gr.append(doc.to_dict().get('GRno'))
+
+print (len(gr))
+
+for i in gr:
+    pth = 'Photos/' + str(i) + '/' + str(i) + '.jpg'
+    path.append(pth)
+
+i = 1
+for f in path:
+    print (i)
+    storage.child(f).download("", "img.jpg")
+    x = face_recognition.load_image_file("img.jpg")
+    y = face_recognition.face_encodings(x)[0]
+    known_face_encodings.append(y)
+    known_face_names.append(f[-8:-4])
+    i = i + 1
+
+print (known_face_names, len(known_face_encodings))
 
 
 #pranjal_image = face_recognition.load_image_file("11810148.jpg")
@@ -128,24 +168,41 @@ while(True):
             cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
 
             if (name not in defaultersList):
-                print("innnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
                 defaultersList.append(name)
                 now = datetime.now()
-                now = now.strftime("%d/%m/%Y %H:%M:%S")
-                docs = db.collection('users').where("GRno", "==", int(name)).get()
-                if len(docs) == 0:
-                    print("GRno not found")
-                else:
-                    for doc in docs:
-                        data = doc.to_dict()
-                        db.collection('defaulters').document(name).set(data)
-                        img = 'ss.jpg'
-                        cloud_img = 'Defaulters/' + name + '.jpg'
-                        storage.child(cloud_img).put(img)
-                        cloud_img_url = storage.child(cloud_img).get_url(None)
-                        db.collection('defaulters').document(str(int(name))).set({'Default_Photo':cloud_img_url}, merge = True)
-                        db.collection('defaulters').document(name).set({'Default_Time':now}, merge = True)           
-                    print("Default Table Updated")
+                now = now.strftime("%Y-%m-%d %H:%M:%S")
+                if (len(name) < 5):
+                    print ("innnnnnnnnnnn staffffffffffffffffffffff")
+                    docs = db.collection('staff').where("GRno", "==", str(name)).get()
+                    if len(docs) == 0:
+                        print("GRno not found")
+                    else:
+                        for doc in docs:
+                            data = doc.to_dict()
+                            db.collection('defaulter_staff').document(name).set(data)
+                            img = 'ss.jpg'
+                            cloud_img = 'Defaulters/' + name + '.jpg'
+                            storage.child(cloud_img).put(img)
+                            cloud_img_url = storage.child(cloud_img).get_url(None)
+                            db.collection('defaulter_staff').document(str(int(name))).set({'Default_Photo':cloud_img_url}, merge = True)
+                            db.collection('defaulter_staff').document(name).set({'Default_Time':now}, merge = True)           
+                        print("Default Table Updated")
+                else :
+                    print ("innnnnnnnnnnnnn usssssserrrrrrrrrrrrr")
+                    docs = db.collection('user').where("GRno", "==", str(name)).get()
+                    if len(docs) == 0:
+                        print("GRno not found")
+                    else:
+                        for doc in docs:
+                            data = doc.to_dict()
+                            db.collection('defaulters').document(name).set(data)
+                            img = 'ss.jpg'
+                            cloud_img = 'Defaulters/' + name + '.jpg'
+                            storage.child(cloud_img).put(img)
+                            cloud_img_url = storage.child(cloud_img).get_url(None)
+                            db.collection('defaulters').document(str(int(name))).set({'Default_Photo':cloud_img_url}, merge = True)
+                            db.collection('defaulters').document(name).set({'Default_Time':now}, merge = True)           
+                        print("Default Table Updated")
 
                     #cv2.imshow('Video', frame)
 
