@@ -17,6 +17,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool dashboardLoaded = false;
+  bool defaultersLoaded = false;
+  bool databaseLoaded = false;
+
   final fs = FireBaseHelper();
 
   bool dashBoardPressed = true;
@@ -26,6 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool databaseAddPressed = false;
   bool databaseUpdatePressed = false;
   List<TableRow> rows = [];
+
+  List<String> grnoList = [];
 
   TextEditingController grnoController = new TextEditingController();
   TextEditingController nameController = new TextEditingController();
@@ -50,12 +56,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<GraphData> graphDataStudent = [];
   List<GraphData> graphDataStaff = [];
+  int studentToday = 0;
+  int staffToday = 0;
 
   int databaseCount = 1;
   String databaseValue = "Students";
 
   int defaulterCount = 1;
   String defaulterValue = "Students";
+
+  bool error = false;
 
   void initState(){
     super.initState();
@@ -65,6 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void datefunction() async{
     graphDataStudent.clear();
     graphDataStaff.clear();
+    studentToday = 0;
+    staffToday = 0;
 
     var temp = await fs.getAllDefaulters(1);
 
@@ -82,6 +94,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     for (int i = 0; i < temp.docs.length; i++){
         var date = DateTime.parse(temp.docs[i]['Default_Time']).day;
+
+        if (now - date == 0)
+          studentToday = studentToday + 1;
 
         if (now - date == 1)
           seven.number = seven.number + 1;
@@ -106,6 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     setState(() {
+      this.studentToday = studentToday;
       graphDataStudent.add(one);
       graphDataStudent.add(two);
       graphDataStudent.add(three);
@@ -127,6 +143,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     for (int i = 0; i < temp.docs.length; i++){
         var date = DateTime.parse(temp.docs[i]['Default_Time']).day;
+
+        if (now - date == 0)
+          staffToday = staffToday + 1;
 
         if (now - date == 1)
           seven1.number = seven1.number + 1;
@@ -151,6 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     setState(() {
+      this.staffToday = staffToday;
       graphDataStaff.add(one1);
       graphDataStaff.add(two1);
       graphDataStaff.add(three1);
@@ -158,6 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
       graphDataStaff.add(five1);
       graphDataStaff.add(six1);
       graphDataStaff.add(seven1);
+      dashboardLoaded = true;
     });
   }
 
@@ -442,10 +463,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void showAddDialog(BuildContext context, bool edit) {
+    error = false;
+    final key = GlobalKey<FormState>();
     showDialog(
       context: context,
       builder: (context) {
-        return Dialog(
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: Container(
             width: 600,
@@ -488,6 +513,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 Container(
                   child: Form(
+                    //autovalidateMode: AutovalidateMode.always,
+                    key: key,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
@@ -504,6 +531,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
 
+                            if (edit == false)
                             Expanded(
                               child : Container(
                                 margin: EdgeInsets.only(right : 20),
@@ -520,6 +548,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                   keyboardType: TextInputType.name,
                                   controller: grnoController,
                                   textAlignVertical: TextAlignVertical.center,
+                                )
+                              )
+                            ),
+
+                            if (edit == true)
+                            Expanded(
+                              child : Container(
+                                margin: EdgeInsets.only(right : 20),
+                                padding: EdgeInsets.only(left : 10),
+                                child: Text(
+                                  grnoController.text,
+                                  style: TextStyle(
+                                    fontSize: 20
+                                  ),
                                 )
                               )
                             )
@@ -756,8 +798,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               minimumSize: Size(780, 60)
                             ),
                             onPressed: () async{
-          
                               if (databaseCount == 1){
+                                if (edit  == false && grnoList.contains(grnoController.text)){
+                                  setState(() {
+                                    error = true;
+                                  });
+                                  return;
+                                }
+
                                 StudentModel student = StudentModel(
                                   grno: grnoController.text,
                                   name: nameController.text,
@@ -804,6 +852,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               }
 
                               if (databaseCount == 2){
+                                if (edit  == false && grnoList.contains(grnoController.text)){
+                                  setState(() {
+                                    error = true;
+                                  });
+                                  return;
+                                }
+
                                 TeacherModel teacher = TeacherModel(
                                   grno: grnoController.text,
                                   name: nameController.text,
@@ -850,6 +905,22 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.pop(context);
                             },
                           ),
+                        ),
+
+                        SizedBox(
+                          height: 20,
+                        ),
+
+                        if (error)
+                        Container(
+                          margin: EdgeInsets.only(left : 20, right: 20),
+                          child : Text(
+                            "GR Number Already Exists",
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 15
+                            ),
+                          )
                         )
                       ],
                     ),
@@ -859,11 +930,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         );
+          }
+        );
       },
     );
   }
 
   void getallDefaulters() async{
+    defaultersLoaded = false;
     defaulterRows.clear();
 
     var temp ;
@@ -1028,16 +1102,25 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
       });
+
+      setState(() {
+         defaultersLoaded = true;
+      });
   }
 
   void getAllStudents() async{
     rows.clear();
+    databaseLoaded = false;
 
     var temp;
     if (databaseCount == 1)
       temp = await fs.getAllStudents(1);
     if (databaseCount == 2)
       temp = await fs.getAllStudents(2);
+
+    for (int i = 0; i < temp.docs.length; i++){
+      grnoList.add(temp.docs[i].id);
+    }
 
       setState(() {
         rows.add(TableRow(
@@ -1273,12 +1356,12 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
         
+        databaseLoaded = true;
       });
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Color(0xFFf6f6f6),
       body: SafeArea(
@@ -1302,7 +1385,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       Container(
                         child: Image.asset("lib/logo_text.png", height: 60,)
                       ),
+                      
                       Container(
+                        height: 80,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(color: dashBoardPressed?Color(0xFF2F84FB) : Colors.white, width: 2),
+                          ),
+                        ),
                         margin: EdgeInsets.only(left : 40),
                         child: TextButton(
                           child: Text(
@@ -1313,17 +1403,25 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           onPressed: (){
-                            datefunction();
+                            
                             setState(() {
+                              dashboardLoaded = false;
                               dashBoardPressed = true;
                               databasePressed = false;
                               defaultersPressed = false;
                             });
+                            datefunction();
                           },
                         ),
                       ),
 
                       Container(
+                        height: 80,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(color: defaultersPressed?Color(0xFF2F84FB) : Colors.white, width: 2),
+                          ),
+                        ),
                         margin: EdgeInsets.only(left : 40),
                         child: TextButton(
                           child: Text(
@@ -1334,17 +1432,25 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           onPressed: (){
-                            getallDefaulters();
                             setState(() {
+                              defaultersLoaded = false;
                               dashBoardPressed = false;
                               databasePressed = false;
                               defaultersPressed = true;
                             });
+                            
+                            getallDefaulters();
                           },
                         ),
                       ),
 
                       Container(
+                        height: 80,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(color: databasePressed?Color(0xFF2F84FB) : Colors.white, width: 2),
+                          ),
+                        ),
                         margin: EdgeInsets.only(left : 40),
                         child: TextButton(
                           child: Text(
@@ -1355,12 +1461,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           onPressed: (){
-                            getAllStudents();
+                            
                             setState(() {
+                              databaseLoaded = false;
                               dashBoardPressed = false;
                               databasePressed = true;
                               defaultersPressed = false;
                             });
+                            getAllStudents();
                           },
                         ),
                       ),
@@ -1400,7 +1508,15 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            if (dashBoardPressed)
+            if (dashBoardPressed && dashboardLoaded == false)
+            Center(
+              child: Container(
+                margin: EdgeInsets.only(top : 50),
+                child: CircularProgressIndicator()
+              ),
+            ),
+
+            if (dashBoardPressed && dashboardLoaded)
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -1462,77 +1578,141 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
 
+                    Container(
+                      height: 300,
+                      margin: EdgeInsets.only(right : 60, top : 50),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Container(
+                            margin: EdgeInsets.only(left : 60),
+                            child:Row(
+                              children: <Widget>[
+                                Container(
+                                  height: 15,
+                                  width: 15,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Color(0xFF707070),
+                                    ),
+                                    borderRadius: BorderRadius.all(Radius.circular(0)),
+                                    color: Colors.red,
+                                  ),
+                                ),
+
+                                Container(
+                                  margin: EdgeInsets.only(left : 10),
+                                  child: Text(
+                                    "Student",
+                                    style: TextStyle(
+                                      fontSize: 15
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(
+                            height: 10,
+                          ),
+
+                          Container(
+                            margin: EdgeInsets.only(left : 60),
+                            child: Row(
+                              children: <Widget>[
+                                Container(
+                                  height: 15,
+                                  width: 15,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Color(0xFF707070),
+                                    ),
+                                    borderRadius: BorderRadius.all(Radius.circular(0)),
+                                    color: Colors.green,
+                                  ),
+                                ),
+
+                                Container(
+                                  margin: EdgeInsets.only(left : 10),
+                                  child: Text(
+                                    "Staff",
+                                    style: TextStyle(
+                                      fontSize: 15
+                                    ),
+                                  ),
+                                )
+                              ],
+                            )
+                          )
+                        ],
+                      ),
+                    ),
+
                     Expanded(
                       child: Container(
                         height: 300,
                         margin: EdgeInsets.only(right : 60, top : 50),
+                        //padding: EdgeInsets.only(left : 20),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Color(0xFF707070),
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(0)),
+                        ),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             Container(
-                              margin: EdgeInsets.only(left : 60),
-                              child:Row(
-                                children: <Widget>[
-                                  Container(
-                                    height: 15,
-                                    width: 15,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Color(0xFF707070),
-                                      ),
-                                      borderRadius: BorderRadius.all(Radius.circular(0)),
-                                      color: Colors.red,
-                                    ),
-                                  ),
-
-                                  Container(
-                                    margin: EdgeInsets.only(left : 10),
-                                    child: Text(
-                                      "Student",
-                                      style: TextStyle(
-                                        fontSize: 15
-                                      ),
-                                    ),
-                                  )
-                                ],
+                              margin: EdgeInsets.only(bottom : 15),
+                              child: Text(
+                                "Todays Stats", 
+                                style : TextStyle(
+                                  fontSize : 18,
+                                )
                               ),
                             ),
 
-                            SizedBox(
-                              height: 10,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.only(bottom : 15, left : 20),
+                                  child: Text(
+                                    "Students : " + (studentToday).toString(),
+                                    style : TextStyle(
+                                      fontSize : 18,
+                                    )
+                                  ),
+                                ),
+
+                                Container(
+                                  padding: EdgeInsets.only(bottom : 15, right : 20),
+                                  child: Text(
+                                    "Staff : " + (staffToday).toString(),
+                                    style : TextStyle(
+                                      fontSize : 18,
+                                    )
+                                  ),
+                                ),
+                              ],
                             ),
 
                             Container(
-                              margin: EdgeInsets.only(left : 60),
-                              child: Row(
-                                children: <Widget>[
-                                  Container(
-                                    height: 15,
-                                    width: 15,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Color(0xFF707070),
-                                      ),
-                                      borderRadius: BorderRadius.all(Radius.circular(0)),
-                                      color: Colors.green,
-                                    ),
-                                  ),
+                              margin: EdgeInsets.only(bottom : 15),
+                              child: Text(
+                                "Total : " + (studentToday + staffToday).toString(),
+                                style : TextStyle(
+                                  fontSize : 18,
+                                )
+                              ),
+                            ),
 
-                                  Container(
-                                    margin: EdgeInsets.only(left : 10),
-                                    child: Text(
-                                      "Staff",
-                                      style: TextStyle(
-                                        fontSize: 15
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              )
-                            )
                           ],
                         ),
-                      ),
+                      )
                     )
                   ],
                 ),
@@ -1544,7 +1724,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     borderRadius: BorderRadius.all(Radius.circular(0)),
                   ),
-                  margin: EdgeInsets.only(left : 20, right : 20, top : 50),
+                  margin: EdgeInsets.only(left : 60, right : 60, top : 50),
                   height: 400,
                   child: SfCartesianChart(
                     primaryXAxis: CategoryAxis(),
@@ -1570,12 +1750,29 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
 
-            if (defaultersPressed)
+            if (defaultersPressed && defaultersLoaded== false)
+            Center(
+              child: Container(
+                margin: EdgeInsets.only(top : 50),
+                child: CircularProgressIndicator()
+              ),
+            ),
+
+            if (defaultersPressed && defaultersLoaded)
             Column(
               children: <Widget>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    Container(
+                      margin: EdgeInsets.only(top : 25, right : 10),
+                      child: Text(
+                        "Defaulter Type: ",
+                        style: TextStyle(
+                          fontSize: 22
+                        ),
+                      ),
+                    ),
                     Container(
                       margin: EdgeInsets.only(right : 75, top : 25),
                       child: DropdownButton<String>(
@@ -1603,7 +1800,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Text(
                               value,
                               style: TextStyle(
-                                fontSize: 15
+                                fontSize: 22
                               ),
                             ),
                             value: value,
@@ -1640,7 +1837,15 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
 
-            if (databasePressed)
+            if (databasePressed && databaseLoaded== false)
+            Center(
+              child: Container(
+                margin: EdgeInsets.only(top : 50),
+                child: CircularProgressIndicator()
+              ),
+            ),
+
+            if (databasePressed && databaseLoaded)
             Column(
               children: <Widget>[
                 Container(
@@ -1673,40 +1878,53 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
 
-                      Container(
-                        padding: EdgeInsets.only(left : 20,),
-                        child: DropdownButton<String>(
-                          value: databaseValue,
-                          icon : Icon(Icons.arrow_drop_down_sharp),
-                          iconSize: 24,
-                          elevation: 16,
-                          onChanged: (value) {
-                            setState(() {
-                              databaseValue = value;
-
-                              if (value == "Students"){
-                                databaseCount= 1;
-                              }
-
-                              if (value == "Staff"){
-                                databaseCount = 2;
-                              }
-
-                              getAllStudents();
-                            });
-                          },
-                          items: ['Students', 'Staff'].map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem <String>(
-                              child: Text(
-                                value,
-                                style: TextStyle(
-                                  fontSize: 15
-                                ),
+                      Row(
+                        children: [
+                          Container(
+                            child: Text(
+                              "Database: ",
+                              style: TextStyle(
+                                fontSize: 22
                               ),
-                              value: value,
-                            );
-                          }).toList(),
-                        ),
+                            ),
+                          ),
+
+                          Container(
+                            padding: EdgeInsets.only(left : 20,),
+                            child: DropdownButton<String>(
+                              value: databaseValue,
+                              icon : Icon(Icons.arrow_drop_down_sharp),
+                              iconSize: 24,
+                              elevation: 16,
+                              onChanged: (value) {
+                                setState(() {
+                                  databaseValue = value;
+
+                                  if (value == "Students"){
+                                    databaseCount= 1;
+                                  }
+
+                                  if (value == "Staff"){
+                                    databaseCount = 2;
+                                  }
+
+                                  getAllStudents();
+                                });
+                              },
+                              items: ['Students', 'Staff'].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem <String>(
+                                  child: Text(
+                                    value,
+                                    style: TextStyle(
+                                      fontSize: 22
+                                    ),
+                                  ),
+                                  value: value,
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
