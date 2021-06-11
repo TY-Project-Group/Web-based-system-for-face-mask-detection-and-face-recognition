@@ -26,13 +26,13 @@ class FireBaseHelper{
   }
 
   deleteStudentDatabase(String grno, int flag) async{
-    String path = "Photos/" + grno + "/" + grno;
+    String path = "Photos/" + grno + "/" + grno + ".jpg";
     
     if (flag == 1)
       await _db.collection("users").doc(grno).delete();
     if (flag == 2){
-      print ("in");
-      await _db.collection("staff").doc(grno).delete();}
+      await _db.collection("staff").doc(grno).delete();
+    }
     
     await FirebaseStorage.instance.ref().child(path).delete();
   }
@@ -45,8 +45,18 @@ class FireBaseHelper{
       await _db.collection("staff").doc(student.grno).set(student.toMap());
   }
 
-  deleteDefaulterStudent(String grno) async{
-    await _db.collection("defaulters").doc(grno).delete();
+  deleteDefaulterStudent(String grno, int flag) async{
+    String path = "Defaulters/" + grno + ".jpg";
+
+    if (flag == 1){
+      await _db.collection("defaulters").doc(grno).delete();
+    }
+
+    if (flag == 2){
+      await _db.collection("defaulter_staff").doc(grno).delete();
+    }
+    
+    await FirebaseStorage.instance.ref().child(path).delete();
   }
 
   getStudentInfo(String grno, int flag) async {
@@ -56,6 +66,21 @@ class FireBaseHelper{
 
     if (flag == 2)
       temp = _db.collection("staff").doc(grno).get();
+    return temp;
+  }
+
+  getDefaultersEmail(String grno, int flag) async{
+    String temp;
+    if (flag == 1){
+      var a = await _db.collection("users").doc(grno).get();
+      temp = a.data()['Email'];
+    }
+
+    if (flag == 2){
+      var a = await _db.collection("staff").doc(grno).get();
+      temp = a.data()['Email'];
+    }
+
     return temp;
   }
 }

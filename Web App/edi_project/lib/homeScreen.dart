@@ -1,4 +1,5 @@
 import 'package:edi_project/newTeachermodel.dart';
+import 'package:mailto/mailto.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:edi_project/FireBaseHelper.dart';
 import 'package:edi_project/newStudentModel.dart';
@@ -9,6 +10,7 @@ import 'dart:js' as js;
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
 
@@ -1094,8 +1096,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         IconButton(
                           icon: Icon(Icons.email_outlined), 
-                          onPressed: (){
+                          onPressed: () async{
+                            String message = "Hi " + temp.docs[i].data()['Name'].toString() + ", \n\nYou have been found in a breach of social distancing protocols. Here is a proof of your breach : " + temp.docs[i].data()['Default_Photo'].toString() + "\n\nWe have always prioritized the safety of our students and staff, and in these uncertain times, this is no different. That’s why we are practicing and enforcing best practices for social distancing and self-isolation in the midst of COVID-19. Unless otherwise notified by college authorities, you are required to wear a face mask on the campus at all times. \n\nRegards,\nVIT Covid-19 Response Team \n\n*NOTE*: This is an automatically generated email. If you have any queries regarding this breach, contact the administrator.";
 
+                            String email;
+                            if (defaulterCount == 1)
+                              email = await fs.getDefaultersEmail(temp.docs[i].id.toString(), 1);
+                            if (defaulterCount == 2)
+                              email = await fs.getDefaultersEmail(temp.docs[i].id.toString(), 2);
+                            final mailtoLink = Mailto(
+                              to: [email],
+                              subject: 'Alert! You were spotted without a mask in college',
+                              body: message,
+                            );
+
+                            await launch('$mailtoLink');
                           },
                           color: Color (0xFFFBBC04),
                         ),
@@ -1103,7 +1118,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         IconButton(
                           icon: Icon(Icons.delete_outline), 
                           onPressed: () async{
-                            fs.deleteDefaulterStudent(temp.docs[i].id.toString());
+                            if (defaulterCount == 1)
+                              fs.deleteDefaulterStudent(temp.docs[i].id.toString(), 1);
+
+                            if (defaulterCount == 2)
+                              fs.deleteDefaulterStudent(temp.docs[i].id.toString(), 2);
+                            
                             getallDefaulters();
                             final snackText = SnackBar(content: Text("Delete Successful"));
                             ScaffoldMessenger.of(context).showSnackBar(snackText);
