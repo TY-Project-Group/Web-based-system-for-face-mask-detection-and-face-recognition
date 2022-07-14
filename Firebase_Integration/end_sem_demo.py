@@ -45,25 +45,27 @@ i = 0
 gr = []
 path = []
 
+
 docs = db.collection('users').get()
 for doc in docs:
     gr.append(doc.to_dict().get('GRno'))
 
-print (len(gr))
+print ("Loading student face data. \nTotal : ", len(gr), "students")
 
 for i in gr:
     pth = 'Photos/' + str(i) + '/' + str(i) + '.jpg'
     path.append(pth)
 
-i = 1
+#i = 1
+print ("Loading...")
 for f in path:
-    print (i)
+    #print (i)
     storage.child(f).download("", "img.jpg")
     x = face_recognition.load_image_file("img.jpg")
     y = face_recognition.face_encodings(x)[0]
     known_face_encodings.append(y)
     known_face_names.append(f[-12:-4])
-    i = i + 1
+    #i = i + 1
 
 docs = db.collection('staff').get()
 gr = []
@@ -71,21 +73,22 @@ path= []
 for doc in docs:
     gr.append(doc.to_dict().get('GRno'))
 
-print (len(gr))
+print ("Loading student face data. \nTotal : ", len(gr), "staff members")
 
 for i in gr:
     pth = 'Photos/' + str(i) + '/' + str(i) + '.jpg'
     path.append(pth)
 
-i = 1
+print ("Loading...")
+#i = 1
 for f in path:
-    print (i)
+    #print (i)
     storage.child(f).download("", "img.jpg")
     x = face_recognition.load_image_file("img.jpg")
     y = face_recognition.face_encodings(x)[0]
     known_face_encodings.append(y)
     known_face_names.append(f[-8:-4])
-    i = i + 1
+    #i = i + 1
 
 print (known_face_names, len(known_face_encodings))
 
@@ -108,7 +111,6 @@ process_this_frame = True
 #known_face_names = ["Pranjal", "Prahlad", "Ojas"]
 
 startTime = time.time()
-print ("start")
 defaultersList = []
 
 while(True):
@@ -172,7 +174,7 @@ while(True):
                 now = datetime.now()
                 now = now.strftime("%Y-%m-%d %H:%M:%S")
                 if (len(name) < 5):
-                    print ("innnnnnnnnnnn staffffffffffffffffffffff")
+                    print ("Staff Member Detected")
                     docs = db.collection('staff').where("GRno", "==", str(name)).get()
                     if len(docs) == 0:
                         print("GRno not found")
@@ -188,8 +190,8 @@ while(True):
                             db.collection('defaulter_staff').document(name).set({'Default_Time':now}, merge = True)           
                         print("Default Table Updated")
                 else :
-                    print ("innnnnnnnnnnnnn usssssserrrrrrrrrrrrr")
-                    docs = db.collection('user').where("GRno", "==", str(name)).get()
+                    print ("Student detected")
+                    docs = db.collection('users').where("GRno", "==", str(name)).get()
                     if len(docs) == 0:
                         print("GRno not found")
                     else:
@@ -206,7 +208,7 @@ while(True):
 
                     #cv2.imshow('Video', frame)
 
-    cv2.putText(frame,str(label),(100,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
+    cv2.putText(frame,str(label),(100,height-20), font, 1,(0,0,0),1,cv2.LINE_AA)
     cv2.imshow('frame',frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
